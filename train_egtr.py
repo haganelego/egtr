@@ -175,9 +175,16 @@ def evaluate_batch(
 
 def collate_fn(batch, feature_extractor):
     pixel_values = [item[0] for item in batch]
-    encoding = feature_extractor.pad_and_create_pixel_mask(
-        pixel_values, return_tensors="pt"
-    )
+    if hasattr(feature_extractor, "pad_and_create_pixel_mask"):
+        # transformers < 4.27
+        encoding = feature_extractor.pad_and_create_pixel_mask(
+            pixel_values, return_tensors="pt"
+        )
+    else:
+        # transformers >= 4.27 renamed this to `pad`
+        encoding = feature_extractor.pad(
+            pixel_values, return_pixel_mask=True, return_tensors="pt"
+        )
     labels = [item[1] for item in batch]
     batch = {}
     batch["pixel_values"] = encoding["pixel_values"]

@@ -44,7 +44,7 @@ from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 from transformers import DetrFeatureExtractor
 from transformers.activations import ACT2FN
-from transformers.file_utils import (
+from transformers.utils import (
     ModelOutput,
     add_start_docstrings,
     is_scipy_available,
@@ -459,9 +459,14 @@ if is_scipy_available():
     from scipy.optimize import linear_sum_assignment
 
 if is_vision_available():
-    from transformers.models.detr.feature_extraction_detr import (
-        center_to_corners_format,
-    )
+    try:
+        # transformers < 4.27
+        from transformers.models.detr.feature_extraction_detr import (
+            center_to_corners_format,
+        )
+    except ImportError:
+        # transformers >= 4.27
+        from transformers.image_transforms import center_to_corners_format
 
 if is_timm_available():
     from timm import create_model

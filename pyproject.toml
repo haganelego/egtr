@@ -1,0 +1,33 @@
+[project]
+name = "egtr"
+version = "0.1.0"
+description = "EGTR: Extracting Graph from Transformer for Scene Graph Generation (CVPR 2024)"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "torch==2.7.1",
+    "torchvision==0.22.1",
+    "transformers==4.41.2",
+    "tensorboard>=2.14",
+    "pytorch-lightning>=2.2,<2.6",
+    "timm>=0.9",
+    "pycocotools>=2.0.7",
+    "ninja",
+    "matplotlib>=3.7",
+    "pandas>=2.0",
+    "numpy<2",
+    "cython",
+    "scipy",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true

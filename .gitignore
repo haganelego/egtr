@@ -137,3 +137,12 @@ dmypy.json
 
 ### visualization
 tmp.png
+
+# Datasets and model checkpoints (keep the folder, ignore the contents)
+checkpoint/*
+!checkpoint/.gitkeep
+dataset/*
+!dataset/.gitkeep
+
+# uv
+.venv/

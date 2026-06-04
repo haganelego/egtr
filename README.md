@@ -27,6 +27,29 @@
 
 ### Install dependencies
 
+#### Option A: uv (recommended, modern GPU stack)
+
+The original `requirements.txt` pins `torch==1.12.1+cu113` (2022), which does **not** run on recent GPUs such as the RTX 50 series (Blackwell, `sm_120`). The `pyproject.toml` / `uv.lock` in this repo provide a modernized, GPU-capable stack (PyTorch 2.7 + CUDA 12.8, `transformers==4.41.2`) that has been verified end-to-end on an RTX 5080.
+
+```bash
+# 1. Install dependencies into a local .venv (downloads the CUDA 12.8 PyTorch wheels)
+uv sync
+
+# 2. Build the multi-scale deformable attention CUDA kernel + the Cython bbox extension.
+#    (The CUDA kernel is also built lazily on first import, but pre-building surfaces errors early.)
+uv run python -c "from model.load_custom import load_cuda_kernels; load_cuda_kernels()"
+cd lib/fpn/box_intersections_cpu && uv run python setup.py build_ext --inplace && cd ../../..
+```
+
+Run any script through `uv run`, e.g. `uv run python evaluate_egtr.py ...`.
+
+> Notes for the modernized stack:
+> - Requires the NVIDIA driver to support CUDA 12.8+ and a C++/CUDA toolchain (`nvcc`, `ninja`, `gcc`) for building the custom kernel.
+> - You can pin the kernel build to your GPU with e.g. `TORCH_CUDA_ARCH_LIST="12.0"` (RTX 50xx); otherwise torch auto-detects the visible card.
+> - A few source files were updated for the newer libraries: deprecated `transformers` import paths, the `value.type()` → `value.scalar_type()` change in the CUDA kernel, and `np.float` → `np.float64` in `bbox.pyx`. Numerical results are unchanged.
+
+#### Option B: original pinned versions (legacy)
+
 Docker image: [nvcr.io/nvidia/pytorch:21.11-py3](http://nvcr.io/nvidia/pytorch:21.11-py3)
 
 ```
